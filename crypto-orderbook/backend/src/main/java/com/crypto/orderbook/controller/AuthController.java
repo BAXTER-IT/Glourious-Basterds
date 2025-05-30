@@ -2,8 +2,11 @@ package com.crypto.orderbook.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private UserDetailsService userDetailsService;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
@@ -31,32 +37,46 @@ public class AuthController {
         String password = credentials.get("password");
 
         try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // Create authentication token with credentials
+            UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(username, password);
             
-            if (userDetails != null && password.equals(userDetails.getPassword())) {
-                // Create authentication token
-                Authentication auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-                
-                // Set authentication in security context
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                
-                // Create response
-                Map<String, Object> response = new HashMap<>();
-                Map<String, Object> user = new HashMap<>();
-                user.put("username", username);
-                
-                response.put("success", true);
-                response.put("user", user);
-                
-                return ResponseEntity.ok(response);
-            } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Invalid username or password");
-                return ResponseEntity.ok(response);
-            }
+            // Authenticate using Spring Security's AuthenticationManager
+            Authentication auth = authenticationManager.authenticate(authToken);
+            
+            // If we get here, authentication was successful
+            // Set authentication in security context
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            
+            // Get user details for response
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            
+            // Log successful authentication
+            System.out.println("User authenticated successfully: " + username);
+            
+            // Create response
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> user = new HashMap<>();
+            user.put("username", username);
+            
+            response.put("success", true);
+            response.put("user", user);
+            
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            System.out.println("Bad credentials for user: " + username);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Invalid username or password");
+            return ResponseEntity.ok(response);
+        } catch (AuthenticationException e) {
+            System.out.println("Authentication exception for user: " + username + " - " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Authentication failed");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("Unexpected error during authentication: " + e.getMessage());
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Authentication failed: " + e.getMessage());

@@ -1,53 +1,66 @@
-<div class="orderbook-container">
-  <h2>Crypto Orderbook</h2>
-  
-  <div class="orderbook-header">
-    <div class="symbol">BTC/USDT</div>
-    <div class="last-update" *ngIf="orderbook">
-      Last Update: {{ orderbook.timestamp | date:'medium' }}
+<div class="page-container">
+  <div class="orderbook-container">
+    <h2>Crypto Orderbook</h2>
+    
+    <div class="orderbook-header">
+      <div class="symbol">BTC/USDT</div>
+      <div class="last-update" *ngIf="orderbook">
+        Last Update: {{ orderbook.timestamp | date:'medium' }}
+      </div>
+    </div>
+    
+    <div class="orderbook-subtitle">
+      Top 5 Bids and Asks
+    </div>
+    
+    <div class="orderbook-content" *ngIf="orderbook">
+      <table class="orderbook-table">
+        <thead>
+          <tr>
+            <th>Price (USDT)</th>
+            <th>Amount (BTC)</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Asks (Sell Orders) - Top 5 in ascending order (lowest ask first) -->
+          <tr *ngFor="let ask of getSortedAsks(); trackBy: trackByPrice"
+              class="ask"
+              [class.user-order]="ask.isUserOrder">
+            <td class="price">{{ ask.price | number:'1.2-2' }}</td>
+            <td class="amount">{{ ask.quantity | number:'1.8-8' }}</td>
+            <td class="total">{{ ask.price * ask.quantity | number:'1.2-2' }}</td>
+          </tr>
+          
+          <!-- Spread indicator -->
+          <tr class="spread" *ngIf="orderbook.bids.length && orderbook.asks.length">
+            <td colspan="3">
+              Spread: {{ (orderbook.asks[0].price - orderbook.bids[0].price) | number:'1.2-2' }}
+              ({{ ((orderbook.asks[0].price - orderbook.bids[0].price) / orderbook.bids[0].price * 100) | number:'1.2-2' }}%)
+            </td>
+          </tr>
+          
+          <!-- Bids (Buy Orders) - Top 5 in descending order (highest bid first) -->
+          <tr *ngFor="let bid of getSortedBids(); trackBy: trackByPrice"
+              class="bid"
+              [class.user-order]="bid.isUserOrder">
+            <td class="price">{{ bid.price | number:'1.2-2' }}</td>
+            <td class="amount">{{ bid.quantity | number:'1.8-8' }}</td>
+            <td class="total">{{ bid.price * bid.quantity | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="orderbook-loading" *ngIf="!orderbook">
+      Loading orderbook data...
     </div>
   </div>
-  
-  <div class="orderbook-content" *ngIf="orderbook">
-    <table class="orderbook-table">
-      <thead>
-        <tr>
-          <th>Price (USDT)</th>
-          <th>Amount (BTC)</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Asks (Sell Orders) - Displayed in reverse order (lowest ask first) -->
-        <tr *ngFor="let ask of orderbook.asks.slice().reverse(); trackBy: trackByPrice" 
-            class="ask" 
-            [class.user-order]="ask.isUserOrder">
-          <td class="price">{{ ask.price | number:'1.2-2' }}</td>
-          <td class="amount">{{ ask.quantity | number:'1.8-8' }}</td>
-          <td class="total">{{ ask.price * ask.quantity | number:'1.2-2' }}</td>
-        </tr>
-        
-        <!-- Spread indicator -->
-        <tr class="spread" *ngIf="orderbook.bids.length && orderbook.asks.length">
-          <td colspan="3">
-            Spread: {{ (orderbook.asks[0].price - orderbook.bids[0].price) | number:'1.2-2' }} 
-            ({{ ((orderbook.asks[0].price - orderbook.bids[0].price) / orderbook.bids[0].price * 100) | number:'1.2-2' }}%)
-          </td>
-        </tr>
-        
-        <!-- Bids (Buy Orders) -->
-        <tr *ngFor="let bid of orderbook.bids; trackBy: trackByPrice" 
-            class="bid" 
-            [class.user-order]="bid.isUserOrder">
-          <td class="price">{{ bid.price | number:'1.2-2' }}</td>
-          <td class="amount">{{ bid.quantity | number:'1.8-8' }}</td>
-          <td class="total">{{ bid.price * bid.quantity | number:'1.2-2' }}</td>
-        </tr>
-      </tbody>
-    </table>
+
+  <div class="order-form-wrapper" *ngIf="authService.isLoggedIn()">
+    <app-order-form></app-order-form>
   </div>
-  
-  <div class="orderbook-loading" *ngIf="!orderbook">
-    Loading orderbook data...
+  <div class="login-message" *ngIf="!authService.isLoggedIn()">
+    <p>Please <a routerLink="/login">login</a> to place orders.</p>
   </div>
 </div>

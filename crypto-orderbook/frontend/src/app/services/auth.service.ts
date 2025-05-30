@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { username, password }, { withCredentials: true })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { username, password }, { withCredentials: true })
       .pipe(
         tap(response => {
           if (response.success && response.user) {
@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe(
+    this.http.post(`${this.apiUrl}/auth/logout`, {}, { withCredentials: true }).subscribe(
       () => {
         localStorage.removeItem('currentUser');
         this.currentUserSubject.next(null);

@@ -1,8 +1,19 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+
+// Angular Material Imports
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppComponent } from './app.component';
 import { OrderbookComponent } from './components/orderbook/orderbook.component';
@@ -14,7 +25,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/orderbook', pathMatch: 'full' },
   { path: 'orderbook', component: OrderbookComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'place-order', component: OrderFormComponent, canActivate: [AuthGuard] },
+  { path: 'place-order', component: OrderFormComponent },
   { path: '**', redirectTo: '/orderbook' }
 ];
 
@@ -27,10 +38,20 @@ const routes: Routes = [
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes),
+    // Angular Material Modules
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatSnackBarModule,
+    MatDividerModule,
+    MatProgressSpinnerModule
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent]

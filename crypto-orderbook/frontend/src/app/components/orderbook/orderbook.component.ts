@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { OrderbookService } from '../../services/orderbook.service';
+import { AuthService } from '../../services/auth.service';
 import { Orderbook, OrderbookEntry } from '../../models/orderbook.model';
 
 @Component({
@@ -13,7 +14,10 @@ export class OrderbookComponent implements OnInit, OnDestroy {
   private subscription: Subscription | null = null;
   displayLimit = 5;
 
-  constructor(private orderbookService: OrderbookService) { }
+  constructor(
+    private orderbookService: OrderbookService,
+    public authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.loadOrderbook();
@@ -51,5 +55,29 @@ export class OrderbookComponent implements OnInit, OnDestroy {
 
   trackByPrice(index: number, item: OrderbookEntry): number {
     return item.price;
+  }
+
+  /**
+   * Returns the top 5 asks sorted by price in descending order (highest first)
+   */
+  getSortedAsks(): OrderbookEntry[] {
+    if (!this.orderbook || !this.orderbook.asks) {
+      return [];
+    }
+    return [...this.orderbook.asks]
+      .sort((a, b) => a.price - b.price) // Sort in ascending order (lowest first)
+      .slice(0, this.displayLimit);
+  }
+
+  /**
+   * Returns the top 5 bids sorted by price in descending order (highest first)
+   */
+  getSortedBids(): OrderbookEntry[] {
+    if (!this.orderbook || !this.orderbook.bids) {
+      return [];
+    }
+    return [...this.orderbook.bids]
+      .sort((a, b) => b.price - a.price)
+      .slice(0, this.displayLimit);
   }
 }

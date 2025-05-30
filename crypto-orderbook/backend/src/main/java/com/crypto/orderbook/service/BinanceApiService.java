@@ -39,7 +39,7 @@ public class BinanceApiService {
         this.latestOrderbook = new Orderbook(new ArrayList<>(), new ArrayList<>(), 0, 0);
     }
     
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 10000)
     public void fetchOrderbook() {
         try {
             String url = baseUrl + depthEndpoint + "?symbol=" + defaultSymbol + "&limit=" + defaultLimit;

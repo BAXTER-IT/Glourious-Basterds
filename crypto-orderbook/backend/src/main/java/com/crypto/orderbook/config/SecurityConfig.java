@@ -2,11 +2,16 @@ package com.crypto.orderbook.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -25,35 +30,37 @@ public class SecurityConfig {
             .cors().and()
             .csrf().disable()
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/orderbook/**").permitAll()
-                .requestMatchers("/orderbook/normalized").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin().and()
-            .httpBasic().and()
-            .logout()
-                .logoutSuccessUrl("/login?logout")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID");
+                .anyRequest().permitAll()
+            );
         
         return http.build();
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+    @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
+        UserDetails user = User.builder()
             .username("user")
-            .password("password")
+            .password(passwordEncoder().encode("password"))
             .roles("USER")
             .build();
         
-        UserDetails admin = User.withDefaultPasswordEncoder()
+        UserDetails admin = User.builder()
             .username("admin")
-            .password("admin")
+            .password(passwordEncoder().encode("admin"))
             .roles("ADMIN")
             .build();
         
         return new InMemoryUserDetailsManager(user, admin);
+    }
+    
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean

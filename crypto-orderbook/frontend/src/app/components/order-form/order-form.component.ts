@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
-import { Order, OrderSide } from '../../models/order.model';
+import { OrderbookService } from '../../services/orderbook.service';
+import { Order, OrderSide, OrderStatus } from '../../models/order.model';
 
 @Component({
   selector: 'app-order-form',
@@ -20,7 +21,8 @@ export class OrderFormComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private orderbookService: OrderbookService
   ) {
     this.orderForm = this.formBuilder.group({
       symbol: ['BTCUSDT', Validators.required],
@@ -60,6 +62,18 @@ export class OrderFormComponent implements OnInit {
         response => {
           this.success = 'Order placed successfully!';
           this.loading = false;
+          
+          // Add the order to the orderbook service so it appears in the orderbook
+          const createdOrder: Order = {
+            ...order,
+            id: response.id || `ORD${Date.now()}`,
+            timestamp: Date.now(),
+            status: OrderStatus.OPEN
+          };
+          
+          // Add the order to the orderbook service
+          this.orderbookService.addUserOrder(createdOrder);
+          
           this.orderForm.reset({
             symbol: 'BTCUSDT',
             side: OrderSide.BUY

@@ -34,7 +34,7 @@ public class OrderbookController {
         return ResponseEntity.ok(binanceApiService.getNormalizedOrderbook(limit));
     }
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 10000)
     public void sendOrderbookUpdates() {
         Orderbook normalizedOrderbook = binanceApiService.getNormalizedOrderbook(5);
         messagingTemplate.convertAndSend("/topic/orderbook", normalizedOrderbook);
