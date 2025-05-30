@@ -58,8 +58,9 @@ public class ExchangeRateApiService {
         try {
             String uri = webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .queryParam("base", baseCurrency)
-                            .queryParam("symbols", symbols)
+                            .path("/latest")
+                            .queryParam("from", baseCurrency)
+                            .queryParam("to", symbols)
                             .build())
                     .toString();
             
@@ -67,8 +68,9 @@ public class ExchangeRateApiService {
             
             ExchangeRateResponse response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .queryParam("base", baseCurrency)
-                            .queryParam("symbols", symbols)
+                            .path("/latest")
+                            .queryParam("from", baseCurrency)
+                            .queryParam("to", symbols)
                             .build())
                     .retrieve()
                     .bodyToMono(ExchangeRateResponse.class)
