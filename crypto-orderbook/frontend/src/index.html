@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Crypto Orderbook</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    // Polyfill for Node.js global object in browser
+    window.global = window;
+    // Polyfill for Node.js process object
+    window.process = window.process || { env: {} };
+    // Polyfill for Node.js Buffer object
+    if (typeof window.Buffer === 'undefined') {
+      window.Buffer = {
+        from: function(data, encoding) {
+          if (encoding === 'base64') {
+            return { data: atob(data) };
+          }
+          return { data: data };
+        },
+        isBuffer: function() { return false; }
+      };
+    }
+    // Polyfill for Node.js crypto module
+    window.crypto = window.crypto || {
+      getRandomValues: function(buffer) {
+        for (let i = 0; i < buffer.length; i++) {
+          buffer[i] = Math.floor(Math.random() * 256);
+        }
+        return buffer;
+      }
+    };
+    
+    // Polyfill for Node.js stream module
+    window.stream = window.stream || {
+      Readable: function() {},
+      Writable: function() {},
+      Duplex: function() {},
+      Transform: function() {},
+      PassThrough: function() {}
+    };
+    
+    // Polyfill for Node.js util module
+    window.util = window.util || {
+      inherits: function(ctor, superCtor) {
+        ctor.super_ = superCtor;
+        ctor.prototype = Object.create(superCtor.prototype, {
+          constructor: {
+            value: ctor,
+            enumerable: false,
+            writable: true,
+            configurable: true
+          }
+        });
+      },
+      deprecate: function(fn, msg) { return fn; },
+      promisify: function(fn) { return fn; }
+    };
+    
+    // Polyfill for Node.js path module
+    window.path = window.path || {
+      join: function() {
+        return Array.prototype.slice.call(arguments).join('/').replace(/\/+/g, '/');
+      },
+      dirname: function(path) {
+        return path.replace(/\/[^\/]*$/, '');
+      },
+      basename: function(path, ext) {
+        var base = path.replace(/^.*\//, '');
+        if (ext && base.substr(base.length - ext.length) === ext) {
+          base = base.substr(0, base.length - ext.length);
+        }
+        return base;
+      }
+    };
+    
+    // Polyfill for Node.js fs module
+    window.fs = window.fs || {
+      readFileSync: function() { throw new Error('fs.readFileSync is not supported in the browser'); },
+      writeFileSync: function() { throw new Error('fs.writeFileSync is not supported in the browser'); },
+      existsSync: function() { return false; },
+      readdirSync: function() { return []; },
+      statSync: function() {
+        return {
+          isFile: function() { return false; },
+          isDirectory: function() { return false; }
+        };
+      }
+    };
+    
+    // Polyfill for Node.js os module
+    window.os = window.os || {
+      platform: function() { return 'browser'; },
+      arch: function() { return 'browser'; },
+      endianness: function() { return 'LE'; },
+      tmpdir: function() { return '/tmp'; },
+      homedir: function() { return '/home'; },
+      cpus: function() { return []; },
+      totalmem: function() { return 0; },
+      freemem: function() { return 0; }
+    };
+    
+    // Polyfill for Node.js events module (EventEmitter)
+    window.events = window.events || {
+      EventEmitter: function() {
+        this.events = {};
+        
+        this.on = function(event, listener) {
+          if (typeof this.events[event] !== 'object') {
+            this.events[event] = [];
+          }
+          this.events[event].push(listener);
+          return this;
+        };
+        
+        this.emit = function(event) {
+          var args = [].slice.call(arguments, 1);
+          if (typeof this.events[event] === 'object') {
+            var listeners = this.events[event].slice();
+            for (var i = 0; i < listeners.length; i++) {
+              listeners[i].apply(this, args);
+            }
+          }
+          return this;
+        };
+        
+        this.once = function(event, listener) {
+          var self = this;
+          this.on(event, function g() {
+            self.removeListener(event, g);
+            listener.apply(this, arguments);
+          });
+          return this;
+        };
+        
+        this.removeListener = function(event, listener) {
+          if (typeof this.events[event] === 'object') {
+            var idx = this.events[event].indexOf(listener);
+            if (idx > -1) {
+              this.events[event].splice(idx, 1);
+            }
+          }
+          return this;
+        };
+      }
+    };
+    
+    // Polyfill for Node.js url module
+    window.url = window.url || {
+      parse: function(urlStr) {
+        var parser = document.createElement('a');
+        parser.href = urlStr;
+        
+        return {
+          protocol: parser.protocol,
+          host: parser.host,
+          hostname: parser.hostname,
+          port: parser.port,
+          pathname: parser.pathname,
+          search: parser.search,
+          hash: parser.hash,
+          auth: null
+        };
+      },
+      format: function(urlObj) {
+        var url = '';
+        if (urlObj.protocol) url += urlObj.protocol + '//';
+        if (urlObj.auth) url += urlObj.auth + '@';
+        if (urlObj.hostname) url += urlObj.hostname;
+        if (urlObj.port) url += ':' + urlObj.port;
+        if (urlObj.pathname) url += urlObj.pathname;
+        if (urlObj.search) url += urlObj.search;
+        if (urlObj.hash) url += urlObj.hash;
+        return url;
+      },
+      resolve: function(from, to) {
+        var resolvedUrl = '';
+        if (to.indexOf('://') > -1) return to;
+        
+        if (to.charAt(0) === '/') {
+          var fromUrl = this.parse(from);
+          resolvedUrl = fromUrl.protocol + '//' + fromUrl.host + to;
+        } else {
+          var fromDir = from.substring(0, from.lastIndexOf('/') + 1);
+          resolvedUrl = fromDir + to;
+        }
+        
+        return resolvedUrl;
+      }
+    };
+    
+    // Polyfill for Node.js querystring module
+    window.querystring = window.querystring || {
+      stringify: function(obj) {
+        var str = [];
+        for (var p in obj) {
+          if (obj.hasOwnProperty(p)) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          }
+        }
+        return str.join("&");
+      },
+      parse: function(str) {
+        var obj = {};
+        var pairs = str.split('&');
+        for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split('=');
+          obj[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+        }
+        return obj;
+      },
+      escape: function(str) {
+        return encodeURIComponent(str);
+      },
+      unescape: function(str) {
+        return decodeURIComponent(str);
+      }
+    };
+    
+    // Polyfill for Node.js assert module
+    window.assert = window.assert || {
+      ok: function(value, message) {
+        if (!value) throw new Error(message || "Assertion failed");
+      },
+      equal: function(actual, expected, message) {
+        if (actual != expected) throw new Error(message || "Assertion failed: " + actual + " != " + expected);
+      },
+      strictEqual: function(actual, expected, message) {
+        if (actual !== expected) throw new Error(message || "Assertion failed: " + actual + " !== " + expected);
+      },
+      notEqual: function(actual, expected, message) {
+        if (actual == expected) throw new Error(message || "Assertion failed: " + actual + " == " + expected);
+      },
+      notStrictEqual: function(actual, expected, message) {
+        if (actual === expected) throw new Error(message || "Assertion failed: " + actual + " === " + expected);
+      },
+      deepEqual: function(actual, expected, message) {
+        // Simple implementation
+        if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+          throw new Error(message || "Assertion failed: objects not deep equal");
+        }
+      }
+    };
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

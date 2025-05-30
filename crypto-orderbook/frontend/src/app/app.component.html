@@ -1,0 +1,27 @@
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <h1 class="logo">{{ title }}</h1>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li class="nav-item"><a routerLink="/orderbook" class="nav-link">Orderbook</a></li>
+          <li class="nav-item" *ngIf="authService.isLoggedIn()"><a routerLink="/place-order" class="nav-link">Place Order</a></li>
+          <li class="nav-item" *ngIf="!authService.isLoggedIn()"><a routerLink="/login" class="nav-link">Login</a></li>
+          <li class="nav-item" *ngIf="authService.isLoggedIn()"><a href="#" class="nav-link" (click)="logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2025 Crypto Orderbook. All rights reserved.</p>
+  </div>
+</footer>

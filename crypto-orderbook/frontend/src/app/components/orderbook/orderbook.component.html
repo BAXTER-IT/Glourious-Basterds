@@ -1,0 +1,53 @@
+<div class="orderbook-container">
+  <h2>Crypto Orderbook</h2>
+  
+  <div class="orderbook-header">
+    <div class="symbol">BTC/USDT</div>
+    <div class="last-update" *ngIf="orderbook">
+      Last Update: {{ orderbook.timestamp | date:'medium' }}
+    </div>
+  </div>
+  
+  <div class="orderbook-content" *ngIf="orderbook">
+    <table class="orderbook-table">
+      <thead>
+        <tr>
+          <th>Price (USDT)</th>
+          <th>Amount (BTC)</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Asks (Sell Orders) - Displayed in reverse order (lowest ask first) -->
+        <tr *ngFor="let ask of orderbook.asks.slice().reverse(); trackBy: trackByPrice" 
+            class="ask" 
+            [class.user-order]="ask.isUserOrder">
+          <td class="price">{{ ask.price | number:'1.2-2' }}</td>
+          <td class="amount">{{ ask.quantity | number:'1.8-8' }}</td>
+          <td class="total">{{ ask.price * ask.quantity | number:'1.2-2' }}</td>
+        </tr>
+        
+        <!-- Spread indicator -->
+        <tr class="spread" *ngIf="orderbook.bids.length && orderbook.asks.length">
+          <td colspan="3">
+            Spread: {{ (orderbook.asks[0].price - orderbook.bids[0].price) | number:'1.2-2' }} 
+            ({{ ((orderbook.asks[0].price - orderbook.bids[0].price) / orderbook.bids[0].price * 100) | number:'1.2-2' }}%)
+          </td>
+        </tr>
+        
+        <!-- Bids (Buy Orders) -->
+        <tr *ngFor="let bid of orderbook.bids; trackBy: trackByPrice" 
+            class="bid" 
+            [class.user-order]="bid.isUserOrder">
+          <td class="price">{{ bid.price | number:'1.2-2' }}</td>
+          <td class="amount">{{ bid.quantity | number:'1.8-8' }}</td>
+          <td class="total">{{ bid.price * bid.quantity | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="orderbook-loading" *ngIf="!orderbook">
+    Loading orderbook data...
+  </div>
+</div>

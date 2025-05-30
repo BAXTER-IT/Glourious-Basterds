@@ -1,0 +1,85 @@
+<div class="order-form-container">
+  <h2>Place Order</h2>
+  
+  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="order-form">
+    <div class="form-group">
+      <label for="symbol">Symbol</label>
+      <input 
+        type="text" 
+        id="symbol" 
+        formControlName="symbol" 
+        class="form-control" 
+        [ngClass]="{ 'is-invalid': submitted && f['symbol'].errors }"
+        readonly
+      />
+      <div *ngIf="submitted && f['symbol'].errors" class="invalid-feedback">
+        <div *ngIf="f['symbol'].errors['required']">Symbol is required</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="side">Order Type</label>
+      <select 
+        id="side" 
+        formControlName="side" 
+        class="form-control" 
+        [ngClass]="{ 'is-invalid': submitted && f['side'].errors }"
+      >
+        <option [value]="OrderSide.BUY">Buy</option>
+        <option [value]="OrderSide.SELL">Sell</option>
+      </select>
+      <div *ngIf="submitted && f['side'].errors" class="invalid-feedback">
+        <div *ngIf="f['side'].errors['required']">Order type is required</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="price">Price (USDT)</label>
+      <input 
+        type="number" 
+        id="price" 
+        formControlName="price" 
+        class="form-control" 
+        [ngClass]="{ 'is-invalid': submitted && f['price'].errors }"
+        step="0.01"
+        min="0.01"
+      />
+      <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+        <div *ngIf="f['price'].errors['required']">Price is required</div>
+        <div *ngIf="f['price'].errors['min']">Price must be at least 0.01</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="quantity">Quantity (BTC)</label>
+      <input 
+        type="number" 
+        id="quantity" 
+        formControlName="quantity" 
+        class="form-control" 
+        [ngClass]="{ 'is-invalid': submitted && f['quantity'].errors }"
+        step="0.00000001"
+        min="0.00000001"
+      />
+      <div *ngIf="submitted && f['quantity'].errors" class="invalid-feedback">
+        <div *ngIf="f['quantity'].errors['required']">Quantity is required</div>
+        <div *ngIf="f['quantity'].errors['min']">Quantity must be at least 0.00000001</div>
+      </div>
+    </div>
+    
+    <div class="form-group total-section" *ngIf="f['price'].value && f['quantity'].value">
+      <label>Total Order Value:</label>
+      <div class="total-value">{{ f['price'].value * f['quantity'].value | number:'1.2-2' }} USDT</div>
+    </div>
+    
+    <div class="form-group">
+      <button type="submit" [disabled]="loading" class="btn" [ngClass]="{'btn-buy': f['side'].value === OrderSide.BUY, 'btn-sell': f['side'].value === OrderSide.SELL}">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        {{ f['side'].value === OrderSide.BUY ? 'Buy' : 'Sell' }} BTC
+      </button>
+    </div>
+    
+    <div *ngIf="error" class="alert alert-danger mt-3">{{error}}</div>
+    <div *ngIf="success" class="alert alert-success mt-3">{{success}}</div>
+  </form>
+</div>
