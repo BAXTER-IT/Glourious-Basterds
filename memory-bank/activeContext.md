@@ -7,11 +7,12 @@ We're implementing a 2-Tier EURHUF Chart App with a Spring Boot backend and Angu
 - Successfully switched from Yahoo Finance API to Frankfurter API (https://api.frankfurter.app) for exchange rate data
 - Updated the ExchangeRateApiService to use the correct endpoint format for Frankfurter API
 - Fixed parameter names in API requests (from "base"/"symbols" to "from"/"to")
+- Fixed the historical data endpoint by correcting the API URL format
 - Implemented proper error handling and logging for API requests
 - Added caching to improve performance and reduce API calls
 
 ## Next Steps
-1. Test the historical data endpoint to ensure it works correctly with the Frankfurter API
+1. ✅ Test the historical data endpoint to ensure it works correctly with the Frankfurter API
 2. Implement the Angular frontend to display the exchange rate data
 3. Add unit tests for the backend components
 4. Implement error handling and fallback mechanisms for API failures
