@@ -131,7 +131,7 @@ h2 {
 .orderbook-table .user-order::after {
   content: "Your Order";
   position: absolute;
-  right: 10px;
+  left: 10px;
   font-size: 0.7rem;
   color: #007bff;
   font-weight: bold;
@@ -140,6 +140,45 @@ h2 {
 
 .orderbook-table .user-order:hover {
   background-color: rgba(0, 123, 255, 0.2) !important;
+}
+
+.order-actions {
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #0069d9;
+  }
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #c82333;
+  }
+}
+
+.orderbook-table .user-order:hover .order-actions {
+  opacity: 1;
 }
 
 .orderbook-loading {

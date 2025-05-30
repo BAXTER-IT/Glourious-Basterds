@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>Edit Order</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="edit-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Price (USDT)</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="price"
+        step="0.01"
+        min="0.01"
+      />
+      <mat-error *ngIf="submitted && f['price'].errors?.['required']">
+        Price is required
+      </mat-error>
+      <mat-error *ngIf="submitted && f['price'].errors?.['min']">
+        Price must be at least 0.01
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Quantity (BTC)</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="quantity"
+        step="0.00000001"
+        min="0.00000001"
+      />
+      <mat-error *ngIf="submitted && f['quantity'].errors?.['required']">
+        Quantity is required
+      </mat-error>
+      <mat-error *ngIf="submitted && f['quantity'].errors?.['min']">
+        Quantity must be at least 0.00000001
+      </mat-error>
+    </mat-form-field>
+    
+    <div class="total-section" *ngIf="f['price'].value && f['quantity'].value">
+      <mat-divider></mat-divider>
+      <div class="total-value-container">
+        <span class="total-label">Total Order Value:</span>
+        <span class="total-value">{{ f['price'].value * f['quantity'].value | number:'1.2-2' }} USDT</span>
+      </div>
+      <mat-divider></mat-divider>
+    </div>
+    
+    <div *ngIf="error" class="error-message">{{error}}</div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="20" class="spinner"></mat-spinner>
+    Update Order
+  </button>
+</mat-dialog-actions>

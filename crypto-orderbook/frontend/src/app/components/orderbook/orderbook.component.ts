@@ -1,8 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import { OrderbookService } from '../../services/orderbook.service';
+import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
 import { Orderbook, OrderbookEntry } from '../../models/orderbook.model';
+import { Order } from '../../models/order.model';
+import { EditOrderDialogComponent } from '../edit-order-dialog/edit-order-dialog.component';
 
 @Component({
   selector: 'app-orderbook',
@@ -16,7 +20,9 @@ export class OrderbookComponent implements OnInit, OnDestroy {
 
   constructor(
     private orderbookService: OrderbookService,
-    public authService: AuthService
+    private orderService: OrderService,
+    public authService: AuthService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -79,5 +85,69 @@ export class OrderbookComponent implements OnInit, OnDestroy {
     return [...this.orderbook.bids]
       .sort((a, b) => b.price - a.price)
       .slice(0, this.displayLimit);
+  }
+
+  /**
+   * Cancels a user order
+   * @param orderId The ID of the order to cancel
+   */
+  cancelOrder(orderId: string): void {
+    if (!orderId) {
+      console.error('Cannot cancel order: No order ID provided');
+      return;
+    }
+
+    this.orderService.cancelOrder(orderId).subscribe(
+      () => {
+        console.log(`Order ${orderId} canceled successfully`);
+        // The OrderbookService will handle removing the order from the display
+        this.orderbookService.removeUserOrder(orderId);
+      },
+      (error) => {
+        console.error('Error canceling order:', error);
+      }
+    );
+  }
+
+  /**
+   * Opens a dialog to edit a user order
+   * @param orderId The ID of the order to edit
+   * @param price The current price of the order
+   * @param quantity The current quantity of the order
+   */
+  editOrder(orderId: string, price: number, quantity: number): void {
+    if (!orderId) {
+      console.error('Cannot edit order: No order ID provided');
+      return;
+    }
+
+    // Create a temporary order object for the dialog
+    const orderToEdit: Partial<Order> = {
+      id: orderId,
+      symbol: 'BTCUSDT',
+      price: price,
+      quantity: quantity
+    };
+
+    const dialogRef = this.dialog.open(EditOrderDialogComponent, {
+      width: '400px',
+      data: { order: orderToEdit }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // If dialog returns a result, update the order
+        this.orderService.updateOrder(orderId, result).subscribe(
+          (updatedOrder) => {
+            console.log(`Order ${orderId} updated successfully`);
+            // Update the order in the orderbook service
+            this.orderbookService.updateUserOrder(orderId, updatedOrder);
+          },
+          (error) => {
+            console.error('Error updating order:', error);
+          }
+        );
+      }
+    });
   }
 }

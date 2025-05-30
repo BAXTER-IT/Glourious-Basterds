@@ -14,11 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppComponent } from './app.component';
 import { OrderbookComponent } from './components/orderbook/orderbook.component';
 import { OrderFormComponent } from './components/order-form/order-form.component';
 import { LoginComponent } from './components/login/login.component';
+import { EditOrderDialogComponent } from './components/edit-order-dialog/edit-order-dialog.component';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -34,7 +36,8 @@ const routes: Routes = [
     AppComponent,
     OrderbookComponent,
     OrderFormComponent,
-    LoginComponent
+    LoginComponent,
+    EditOrderDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +54,8 @@ const routes: Routes = [
     MatFormFieldModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent]

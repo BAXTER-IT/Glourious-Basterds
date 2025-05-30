@@ -122,6 +122,30 @@ export class OrderbookService {
   }
   
   /**
+   * Update a user order in the list of user orders
+   */
+  updateUserOrder(orderId: string, updatedOrder: Order): void {
+    // Find the order to update
+    const index = this.userOrders.findIndex(order => order.id === orderId);
+    if (index !== -1) {
+      // Update the order
+      this.userOrders[index] = {
+        ...this.userOrders[index],
+        ...updatedOrder,
+        id: orderId // Ensure the ID remains the same
+      };
+      this.userOrdersSubject.next([...this.userOrders]);
+      
+      // Update the orderbook to reflect the updated order
+      const currentOrderbook = this.getLatestOrderbook();
+      if (currentOrderbook) {
+        const mergedOrderbook = this.mergeUserOrders(currentOrderbook);
+        this.orderbookSubject.next(mergedOrderbook);
+      }
+    }
+  }
+  
+  /**
    * Merge user orders with the fetched orderbook
    */
   private mergeUserOrders(orderbook: Orderbook): Orderbook {
@@ -143,7 +167,8 @@ export class OrderbookService {
         const entry: OrderbookEntry = {
           price: order.price,
           quantity: order.quantity,
-          isUserOrder: true
+          isUserOrder: true,
+          orderId: order.id
         };
         
         if (order.side === OrderSide.BUY) {

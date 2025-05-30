@@ -1,0 +1,41 @@
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  padding: 10px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 10px 0;
+  font-size: 0.9rem;
+}
+
+.total-section {
+  margin: 15px 0;
+}
+
+.total-value-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.total-label {
+  font-weight: 500;
+  color: #555;
+}
+
+.total-value {
+  font-weight: 600;
+  color: #333;
+}

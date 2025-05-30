@@ -23,4 +23,8 @@ export class OrderService {
   cancelOrder(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  updateOrder(id: string, order: Partial<Order>): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${id}`, order);
+  }
 }

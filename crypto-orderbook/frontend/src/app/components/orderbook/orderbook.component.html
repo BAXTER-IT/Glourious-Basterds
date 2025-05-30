@@ -29,7 +29,19 @@
               [class.user-order]="ask.isUserOrder">
             <td class="price">{{ ask.price | number:'1.2-2' }}</td>
             <td class="amount">{{ ask.quantity | number:'1.8-8' }}</td>
-            <td class="total">{{ ask.price * ask.quantity | number:'1.2-2' }}</td>
+            <td class="total">
+              {{ ask.price * ask.quantity | number:'1.2-2' }}
+              <div *ngIf="ask.isUserOrder && authService.isLoggedIn() && ask.orderId" class="order-actions">
+                <button class="edit-btn"
+                        (click)="editOrder(ask.orderId!, ask.price, ask.quantity)">
+                  Edit
+                </button>
+                <button class="cancel-btn"
+                        (click)="cancelOrder(ask.orderId!)">
+                  Cancel
+                </button>
+              </div>
+            </td>
           </tr>
           
           <!-- Spread indicator -->
@@ -46,7 +58,19 @@
               [class.user-order]="bid.isUserOrder">
             <td class="price">{{ bid.price | number:'1.2-2' }}</td>
             <td class="amount">{{ bid.quantity | number:'1.8-8' }}</td>
-            <td class="total">{{ bid.price * bid.quantity | number:'1.2-2' }}</td>
+            <td class="total">
+              {{ bid.price * bid.quantity | number:'1.2-2' }}
+              <div *ngIf="bid.isUserOrder && authService.isLoggedIn() && bid.orderId" class="order-actions">
+                <button class="edit-btn"
+                        (click)="editOrder(bid.orderId!, bid.price, bid.quantity)">
+                  Edit
+                </button>
+                <button class="cancel-btn"
+                        (click)="cancelOrder(bid.orderId!)">
+                  Cancel
+                </button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
